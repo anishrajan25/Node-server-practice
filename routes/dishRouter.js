@@ -183,6 +183,11 @@ dishRouter.route('/:dishId/comments/:commentId')
     Dishes.findByIdAndUpdate(req.params.dishId)
     .then((dish) => {
         if(dish != null && dish.comments.id(req.params.commentId) != null) {
+            if(!dish.comments.id(req.params.commentId).author.equals(req.user._id)) {
+                var err = new Error('You are not authorized to edit this comment!');
+                err.status = 403;
+                return next(err);
+            }
             if(req.body.rating) {
                 dish.comments.id(req.params.commentId).rating = req.body.rating;
             }
@@ -217,6 +222,11 @@ dishRouter.route('/:dishId/comments/:commentId')
     Dishes.findById(req.params.dishId)
     .then((dish) => {
         if(dish != null && dish.comments.id(req.params.commentId) != null) {
+            if(!dish.comments.id(req.params.commentId).author.equals(req.user._id)) {
+                var err = new Error('You are not authorized to edit this comment!');
+                err.status = 403;
+                return next(err);
+            }
             dish.comments.id(req.params.commentId).remove();
             dish.save()
             .then((dish) => {
